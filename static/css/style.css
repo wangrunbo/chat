@@ -1,3 +1,25 @@
 body {
-    
-}
+            width: 35%;
+            height: auto;
+            margin: 30px auto;
+            padding: 15px;
+            border: 2px #616161 solid;
+        }
+
+        div {
+            position: relative;
+            width: 100%;
+            {#padding: 5px;#}
+        }
+
+        #log {
+            height: 50px;
+        }
+
+        #log p {
+            color: #ffffff;
+            background-color: #479738;
+            max-width: 55%;
+            font-size: 30px;
+            padding: 5px;
+        }
