@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Pepper Test</title>
+
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            toggleContainer();
+
+            function toggleContainer() {
+                var containers = $(".authContainer");
+                containers.click(function () {
+                    var radio = $(this).find("input[type=radio][name=type]");
+                    if (!radio.prop('checked')) {
+                        containers.not(this).addClass('disabled').find("input[type=text]").prop('disabled', true);
+                        radio.prop('checked', true);
+                        $(this).find("input[type=text]").prop('disabled', false);
+                        $(this).removeClass('disabled');
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+<main>
+    <form id="auth" method="post" action="{{ url_for('auth') }}">
+        <div class="authContainer">
+            <h3>
+                <input name="type" type="radio" value="1" title="Account" checked="checked" />
+                Account
+            </h3>
+            <input name="id" type="text" placeholder="ID" />
+        </div>
+
+        <hr />
+
+        <div class="authContainer disabled">
+            <h3>
+                <input name="type" type="radio" value="0" title="Guest" />
+                Guest
+            </h3>
+            <input name="name" type="text" placeholder="ID" disabled />
+        </div>
+
+        <hr />
+
+        <button type="submit">Sign in</button>
+    </form>
+</main>
+</body>
+</html>
