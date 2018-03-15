@@ -1,4 +1,6 @@
 .idea
 *.pyc
-test.py
+test.*
 /venv/
+/dump/
+*.db
