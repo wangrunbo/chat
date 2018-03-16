@@ -34,7 +34,8 @@
                 <input name="type" type="radio" value="1" title="Account" checked="checked" />
                 Account
             </h3>
-            <input name="id" type="text" placeholder="ID" />
+            <input name="id" type="text" placeholder="ID"{% if user_id is defined %} value="{{ user_id }}"{% endif %} />
+            {% if user_id is defined %}<div style="color: #ff0000;">用户不存在！</div>{% endif %}
         </div>
 
         <hr />

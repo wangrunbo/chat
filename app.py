@@ -1,4 +1,5 @@
-from flask import Flask, session, request, redirect, render_template, url_for
+from datetime import datetime
+from flask import Flask, session, request, redirect, render_template, url_for, escape
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
@@ -21,7 +22,7 @@ from model import Chat
 @app.route('/')
 def index():
     if session.get('auth') is None:
-        return redirect(url_for('auth'), 200)
+        return redirect(url_for('auth'))
 
     return render_template('index.html')
 
@@ -33,39 +34,42 @@ def auth():
         if auth.get('type') == '1':
             user_id = auth.get('id')
 
-            user = None
+            user = User.query.filter_by(uid=user_id).first()
 
             if user is None:
-                pass
+                return render_template('auth.html', user_id=user_id)
 
-            # name = user.name
-            name = 'User'
+            user_id = user.id
+            name = user.name
         else:
             user_id = None
             name = auth.get('name') if auth.get('name') else 'Guest'
 
-        session['auth.id'] = user_id
-        session['auth.name'] = name
+        session['auth'] = {
+            'id': user_id,
+            'name': name
+        }
 
-        return redirect(url_for('index'), 200)
+        return redirect(url_for('index'))
 
     return render_template('auth.html')
+
 
 @socketio.on('send message', namespace='/chat')
 def chat(message):
     if session.get('auth') is not None:
-        # TODO save to DB
-        data = {
-            'name': session['auth.name'],
-            'data': message['data']
-        }
-        emit('show message', data, broadcast=True)
+        chat = Chat(user_id=session['auth']['id'], name=session['auth']['name'], datetime=datetime.now(), content=message['data'])
+
+        db.session.add(chat)
+        db.session.commit()
+
+        __emit('show message', {'name': chat.name, 'data': chat.content}, broadcast=True)
 
 
 @socketio.on('connect', namespace='/chat')
 def connect():
     if session.get('auth') is not None:
-        emit('show message', {'data': '<' + session['auth.name'] + '>成功连接'})
+        __emit('show message', {'data': '<' + session['auth']['name'] + '>成功连接'})
 
 
 @socketio.on('disconnect', namespace='/chat')
@@ -73,18 +77,25 @@ def disconnect():
     print('Client disconnected')
 
 
-@app.route('/create_db')
-def create_db():
-    print(db)
-    db.create_all()
+def __emit(event, data, *args, **kwargs):
+    emit(event, __escape(data), *args, **kwargs)
 
-    return 'success'
 
-@app.route('/get_all')
-def get_all():
-    print(User.query.all())
+def __escape(data):
+    if type(data) is str:
+        escape_data = escape(data)
+    elif type(data) is list:
+        escape_data = []
+        for element in data:
+            escape_data.append(__escape(element))
+    elif type(data) is dict:
+        escape_data = {}
+        for k, v in data.items():
+            escape_data[__escape(k)] = __escape(v)
+    else:
+        return data
 
-    return 'get'
+    return escape_data
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@
             socket.on('show message', function(msg) {
                 var message = '<p>' + msg.data + '</p>';
                 if ("name" in msg) {
-                    message = '<h6>' + msg.name + '</h6>' + message;
+                    message = '<h5>' + msg.name + '</h5>' + message;
                 }
                 if (log.scrollTop() + log.innerHeight() >= log[0].scrollHeight) {
                     log.append(message).scrollTop(log.prop("scrollHeight"));
